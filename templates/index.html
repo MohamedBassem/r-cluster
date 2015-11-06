@@ -1,0 +1,80 @@
+<html>
+  <head>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" integrity="sha256-MfvZlkHCEqatNoGiOXveE8FIwMzZg4W85qfrfIFBfYc= sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+  </head>
+  <body>
+    <div class="col-sm-12">
+    <h1> R Script Console </h1>
+    </div>
+    <div class="container-fluid">
+      <div class="form-horizontal" role="form">
+        <div class="form-group">
+          <div class="col-sm-12">
+            <input type="text" class="form-control" id="task-id" oninput="updateOutputLink()" placeholder="Task Id" />
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-10">
+            <input type="file" class="form-control" id="upload-to-code-files" multiple/>
+          </div>
+          <div class="col-sm-2">
+            <input type="button" class="btn btn-default" id="upload-to-code" value="Upload to Code Folder" />
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-12"> 
+            <textarea class="form-control" id="command-area" rows="25"disabled>
+            </textarea>
+          </div>
+        </div>
+        <div class="form-group"> 
+          <div class="col-sm-12">
+            <a id="output-link" href="" >http://localhost:5056/static//output</a>
+          </div>
+        </div>
+        <div class="form-group"> 
+          <div class="col-sm-11">
+            <input type="text" class="form-control" id="command" />
+          </div>
+          <div class="col-sm-1">
+            <input type="button" class="btn btn-default" id="send-command" value="Run" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha256-Sk3nkD6mLTMOF0EOpNtsIry+s1CsaqQC1rVLTAy+0yc= sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
+<script>
+
+function updateOutputLink() {
+    $("#output-link").html("http://localhost:5056/static/"+ $("#task-id").val() +"/output")
+    $("#output-link").prop("href", "http://localhost:5056/static/"+ $("#task-id").val() +"/output")
+}
+$(document).ready(function() {
+
+  $("#send-command").click(function() {
+    var socket = new WebSocket("ws://localhost:5056/run");
+    taskId = $("#task-id").val();
+    command = $("#command").val();
+    if(taskId == "" || command == ""){
+      alert("Task Id and Command cannot be empty.");
+      return;
+    }
+    socket.onopen = function(){
+      console.log("Socket opened");
+      $("#send-command").prop('disabled', true);
+      socket.send(taskId + " " + command);
+    }
+    socket.onmessage = function(msg){
+      $("#command-area").val($("#command-area").val() + msg.data)
+    }
+    socket.onclose = function(){
+      console.log("Socket closed")
+        $("#send-command").prop('disabled', false);
+    }
+  })
+})
+</script>
