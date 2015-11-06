@@ -103,7 +103,8 @@ $(document).ready(function() {
     for(var i=0;i<20;i++){
       ret += seed[parseInt(Math.random()*seed.length)]
     }
-    $("#task-id").val(ret)
+    $("#task-id").val(ret);
+    updateOutputLink();
 
   })
 })
