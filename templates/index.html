@@ -83,16 +83,16 @@ $(document).ready(function() {
     }
     var socket = new WebSocket("ws://localhost:5056/run");
     socket.onopen = function(){
-      console.log("Socket opened");
       $("#send-command").prop('disabled', true);
       $("#command").val("")
       socket.send(taskId + " " + command);
     }
     socket.onmessage = function(msg){
-      $("#command-area").val($("#command-area").val() + msg.data)
+      $("#command-area").val($("#command-area").val() + msg.data);
+      $("#command-area").scrollTop($("#command-area").get(0).scrollHeight);
+
     }
     socket.onclose = function(){
-      console.log("Socket closed")
         $("#send-command").prop('disabled', false);
     }
   })
@@ -105,7 +105,12 @@ $(document).ready(function() {
     }
     $("#task-id").val(ret);
     updateOutputLink();
+  })
 
+  $("#command").keyup(function(event) {
+    if(event.keyCode == 13) {
+      $("#send-command").click();
+    }
   })
 })
 </script>
