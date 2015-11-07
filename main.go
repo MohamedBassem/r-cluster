@@ -35,9 +35,8 @@ func pinger(ws *websocket.Conn) {
 
 func runCommand(ws *websocket.Conn, jobID, command string) {
 	generateDirs(jobID)
-	s := strings.Split(command, " ")
 	websocket.Message.Send(ws, "$ "+command+"\n")
-	cmd := exec.Command(s[0], s[1:]...)
+	cmd := exec.Command("./scripts/run-r-script.sh", "--name", jobID, "--command", command)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Println(err.Error())
