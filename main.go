@@ -16,6 +16,7 @@ import (
 )
 
 const WorkingDir = "/mnt/nfs/working_dir/"
+const newLine = "====================================================================\n"
 
 func generateDirs(taskId string) {
 	os.MkdirAll(WorkingDir+taskId+"/input", 0755)
@@ -54,15 +55,15 @@ func runCommand(ws *websocket.Conn, jobID, command string) {
 	err = cmd.Start()
 	if err != nil {
 		log.Println(err.Error())
-		websocket.Message.Send(ws, err.Error()+"\n\n")
+		websocket.Message.Send(ws, err.Error()+"\n"+newLine)
 		return
 	}
 
 	go io.Copy(ws, stdout)
-	go io.Copy(ws, stderr)
+	//go io.Copy(ws, stderr)
 	go pinger(ws)
 	cmd.Wait()
-	websocket.Message.Send(ws, "\n")
+	websocket.Message.Send(ws, newLine)
 	log.Printf("Command '%v'@%v Done..", command, jobID)
 }
 
