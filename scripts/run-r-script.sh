@@ -36,7 +36,7 @@ if [ -z "$NAME" ] || [ -z "$COMMAND" ]  ; then
 fi
 
 
-COMMAND="echo -e '\n\n=======> Output Start\n' && docker run -v $WORKDIR_ROOT/$NAME/input:/input -v $WORKDIR_ROOT/$NAME/output:/output -v $WORKDIR_ROOT/$NAME/code:/code 192.168.1.204:5011/bundled-r $COMMAND && echo -e '\n\n=======> Output End\n'"
+COMMAND="echo '=======> Output Start'; docker run -v $WORKDIR_ROOT/$NAME/input:/input -v $WORKDIR_ROOT/$NAME/output:/output -v $WORKDIR_ROOT/$NAME/code:/code 192.168.1.204:5011/bundled-r $COMMAND && echo '=======> Output End'"
 
 MASTER=`mesos-resolve $(cat /etc/mesos/zk)`
 TASK_NAME=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`
