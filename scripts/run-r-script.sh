@@ -54,7 +54,7 @@ EXECUTE_PID=`echo $!`
 
 LINES_READ=0
 while kill -0 $EXECUTE_PID 2> /dev/null; do
-  NEW_LINES=`mesos-cat -i $TASK_NAME stdout | tail -n +$LINES_READ`
+  NEW_LINES=`mesos-cat -i $TASK_NAME stdout | tail -n +$((LINES_READ + 1))`
   NEW_LINES_C=`echo -en "$NEW_LINES" | wc -l`
   LINES_READ=$((LINES_READ + NEW_LINES_C))
   echo -en "$NEW_LINES"
