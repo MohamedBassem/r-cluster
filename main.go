@@ -57,7 +57,6 @@ func runCommand(ws *websocket.Conn, jobID, command string) {
 		websocket.Message.Send(ws, err.Error()+"\n\n")
 		return
 	}
-	cmd.Wait()
 
 	go io.Copy(ws, stdout)
 	go io.Copy(ws, stderr)
