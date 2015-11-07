@@ -43,9 +43,15 @@ TASK_NAME=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`
 mesos-execute --master=$MASTER --name=$TASK_NAME --command="$COMMAND" > /dev/null 2>&1 &
 EXECUTE_PID=`echo $!`
 
-mesos-tail $TASK_NAME -qf &
-TAIL_PID=`echo $!`
 
-wait $EXECUTE_PID
+LINES_READ=0
+while kill -0 $EXECUTE_PID 2> /dev/null; do
+  NEW_LINES=`mesos-cat -i $TASK_NAME stdout stderr | tail -n +$LINES_READ`
+  NEW_LINES_C=`echo -e "$NEW_LINES" | wc -l`
+  LINES_READ=$((LINES_READ + NEW_LINES_C))
+  echo -en "$NEW_LINES"
+  sleep 0.5
+done
+
 sleep 5
-kill $TAIL_PID
+mesos-cat -i $TASK_NAME stdout stderr | tail -n +$LINES_READ
