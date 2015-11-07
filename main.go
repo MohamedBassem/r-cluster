@@ -114,6 +114,9 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 func main() {
 	http.Handle("/run", websocket.Handler(handleRun))
 	http.HandleFunc("/uploadcode", handleUpload)
+	http.Handle("/assets/", http.FileServer(http.Dir("./")))
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("/mnt/nfs/working_dir/"))))
+	http.Handle("/", http.FileServer(http.Dir("./templates")))
 	log.Println("Starting server ..")
 	log.Fatal(http.ListenAndServe(":5055", nil))
 }
