@@ -34,7 +34,7 @@
         </div>
         <div class="form-group"> 
           <div class="col-sm-12">
-            Output: <a id="output-link" href="http://localhost:5055/static//output" >http://localhost:5055/static//output</a>
+            Output: <a id="output-link" href="/static//output" >http://optima-office:5055/static//output</a>
           </div>
         </div>
         <div class="form-group"> 
@@ -55,8 +55,8 @@
 <script>
 
 function updateOutputLink() {
-  $("#output-link").html("http://localhost:5055/static/"+ $("#task-id").val() +"/output")
-    $("#output-link").prop("href", "http://localhost:5055/static/"+ $("#task-id").val() +"/output")
+  $("#output-link").html("http://optima-office:5055/static/"+ $("#task-id").val() +"/output")
+    $("#output-link").prop("href", "/static/"+ $("#task-id").val() +"/output")
 }
 $(document).ready(function() {
 
@@ -93,7 +93,7 @@ $(document).ready(function() {
       alert("Task Id and Command cannot be empty.");
       return;
     }
-    var socket = new WebSocket("ws://localhost:5055/run");
+    var socket = new WebSocket("ws://" + window.location.host + "/run");
     socket.onopen = function(){
       $("#send-command").prop('disabled', true);
       $("#command").val("")
