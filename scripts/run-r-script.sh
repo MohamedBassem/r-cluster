@@ -53,13 +53,20 @@ EXECUTE_PID=`echo $!`
 
 
 LINES_READ=0
+PREV=""
+set -x
 while kill -0 $EXECUTE_PID 2> /dev/null; do
-  NEW_LINES=`mesos-cat -i $TASK_NAME stdout | tail -n +$((LINES_READ + 1))`
-  NEW_LINES_C=`echo -en "$NEW_LINES" | wc -l`
-  LINES_READ=$((LINES_READ + NEW_LINES_C))
-  echo -en "$NEW_LINES"
+  PREV_C=$(echo -en "$PREV" | wc -c)
+  TOTAL=`mesos-cat -i $TASK_NAME stdout`
+  TOTAL_C=$(echo -en "$TOTAL" | wc -c)
+  echo -en "$TOTAL" | tail -c $((TOTAL_C - PREV_C))
+  PREV="$TOTAL"
   sleep 0.5
 done
+set +x
 
 sleep 5
-mesos-cat -i $TASK_NAME stdout | tail -n +$LINES_READ
+PREV_C=$(echo -en "$PREV" | wc -c)
+TOTAL=`mesos-cat -i $TASK_NAME stdout`
+TOTAL_C=$(echo -en "$TOTAL" | wc -c)
+echo -en "$TOTAL" | tail -c $((TOTAL_C - PREV_C))
