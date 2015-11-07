@@ -52,16 +52,19 @@ func runCommand(ws *websocket.Conn, jobID, command string) {
 	defer stderr.Close()
 
 	err = cmd.Start()
-	defer websocket.Message.Send(ws, "\n")
 	if err != nil {
-		websocket.Message.Send(ws, err.Error()+"\n")
+		log.Println(err.Error())
+		websocket.Message.Send(ws, err.Error()+"\n\n")
 		return
 	}
-	defer cmd.Wait()
+	cmd.Wait()
 
 	go io.Copy(ws, stdout)
 	go io.Copy(ws, stderr)
 	go pinger(ws)
+	cmd.Wait()
+	websocket.Message.Send(ws, "\n")
+	log.Printf("Command '%v'@%v Done..", command, jobID)
 }
 
 func handleRun(ws *websocket.Conn) {
