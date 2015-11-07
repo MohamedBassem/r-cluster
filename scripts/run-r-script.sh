@@ -39,9 +39,9 @@ fi
 TASK_NAME=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`
 
 echo "#!/bin/bash" >> /$WORKDIR_ROOT/$NAME/${TASK_NAME}.sh
-echo "echo -e '\n=======================> Output Start'" >> /$WORKDIR_ROOT/$NAME/${TASK_NAME}.sh
+echo "echo -e '\n=======================> Output Start <======================='" >> /$WORKDIR_ROOT/$NAME/${TASK_NAME}.sh
 echo "$COMMAND" >> /$WORKDIR_ROOT/$NAME/${TASK_NAME}.sh
-echo "echo -e '=======================> Output End'" >> /$WORKDIR_ROOT/$NAME/${TASK_NAME}.sh
+echo "echo -e '=======================> Output End <=======================\n'" >> /$WORKDIR_ROOT/$NAME/${TASK_NAME}.sh
 
 COMMAND="docker run -v $WORKDIR_ROOT/$NAME/${TASK_NAME}.sh:/tmp/cmd.sh -v $WORKDIR_ROOT/$NAME/input:/input -v $WORKDIR_ROOT/$NAME/output:/output -v $WORKDIR_ROOT/$NAME/code:/code 192.168.1.204:5011/bundled-r /bin/bash /tmp/cmd.sh"
 
