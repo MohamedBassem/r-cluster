@@ -96,6 +96,7 @@ $(document).ready(function() {
     var socket = new WebSocket("ws://" + window.location.host + "/run");
     socket.onopen = function(){
       $("#send-command").prop('disabled', true);
+      $("#command").prop('disabled', true);
       $("#command").val("")
       socket.send(taskId + " " + command);
     }
@@ -106,6 +107,7 @@ $(document).ready(function() {
     }
     socket.onclose = function(){
         $("#send-command").prop('disabled', false);
+      $("#command").prop('disabled', false);
     }
   })
 
