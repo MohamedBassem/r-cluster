@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"mime/multipart"
@@ -14,6 +15,14 @@ import (
 	"golang.org/x/net/websocket"
 )
 
+const WorkingDir = "/mnt/nfs/working_dir/"
+
+func generateDirs(taskId string) {
+	os.MkdirAll(WorkingDir+taskId+"/input", 0744)
+	os.MkdirAll(WorkingDir+taskId+"/output", 0744)
+	os.MkdirAll(WorkingDir+taskId+"/code", 0744)
+}
+
 func pinger(ws *websocket.Conn) {
 	for {
 		err := websocket.Message.Send(ws, "")
@@ -25,6 +34,7 @@ func pinger(ws *websocket.Conn) {
 }
 
 func runCommand(ws *websocket.Conn, jobID, command string) {
+	generateDirs(jobID)
 	s := strings.Split(command, " ")
 	websocket.Message.Send(ws, "$ "+command+"\n")
 	cmd := exec.Command(s[0], s[1:]...)
@@ -78,44 +88,54 @@ func handleRun(ws *websocket.Conn) {
 
 func handleUpload(w http.ResponseWriter, r *http.Request) {
 
-	const _24K = (1 << 20) * 24
-	r.ParseMultipartForm(_24K)
+	err := r.ParseMultipartForm(100000)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 
 	if r.FormValue("task-id") == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, "Missing task-id", http.StatusBadRequest)
 		return
 	}
-	var err error
+	if r.FormValue("dir") == "" {
+		http.Error(w, "Missing dir", http.StatusBadRequest)
+		return
+	}
+	generateDirs(r.FormValue("task-id"))
 	for _, fheaders := range r.MultipartForm.File {
 		for _, hdr := range fheaders {
 			// open uploaded
 			var infile multipart.File
-			if infile, err = hdr.Open(); nil != err {
+			if infile, err = hdr.Open(); err != nil {
+				fmt.Println(err)
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 			// open destination
 			var outfile *os.File
-			if outfile, err = os.Create("/tmp/" + r.Form.Get("task-id") + "/output/" + hdr.Filename); nil != err {
+			destination := fmt.Sprintf("%v/%v/%v/%v", WorkingDir, r.Form.Get("task-id"), r.Form.Get("dir"), hdr.Filename)
+			if outfile, err = os.Create(destination); nil != err {
+				fmt.Println(err)
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
-			// 32K buffer copy
+			// Copy
 			var written int64
 			if written, err = io.Copy(outfile, infile); nil != err {
+				fmt.Println(err)
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
-			log.Println("uploaded file:" + hdr.Filename + ";length:" + strconv.Itoa(int(written)))
+			log.Println("uploaded file:" + destination + ";length:" + strconv.Itoa(int(written)))
 		}
 	}
 }
 
 func main() {
 	http.Handle("/run", websocket.Handler(handleRun))
-	http.HandleFunc("/uploadcode", handleUpload)
+	http.HandleFunc("/upload", handleUpload)
 	http.Handle("/assets/", http.FileServer(http.Dir("./")))
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("/mnt/nfs/working_dir/"))))
+	http.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir(WorkingDir))))
 	http.Handle("/", http.FileServer(http.Dir("./templates")))
 	log.Println("Starting server ..")
 	log.Fatal(http.ListenAndServe(":5055", nil))

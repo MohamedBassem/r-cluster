@@ -11,18 +11,19 @@
         <form id="upload-files-form" enctype="multipart/form-data">
           <div class="form-group">
             <div class="col-sm-10">
-              <input type="text" name="files" class="form-control" name="task-id" id="task-id" oninput="updateOutputLink()" placeholder="Task Id" />
+              <input type="text" class="form-control" name="task-id" id="task-id" oninput="updateOutputLink()" placeholder="Task Id" />
             </div>
             <div class="col-sm-2">
               <input type="button" class="btn btn-default" id="generate-random-string" value="Generate Random String" />
             </div>
           </div>
           <div class="form-group">
-            <div class="col-sm-10">
-              <input type="file" class="form-control" id="upload-to-code-files" multiple/>
+            <div class="col-sm-9">
+              <input type="file" name="files" class="form-control" id="upload-to-code-files" multiple/>
             </div>
-            <div class="col-sm-2">
+            <div class="col-sm-3">
               <input type="button" class="btn btn-default" id="upload-to-code" value="Upload to Code Folder" />
+              <input type="button" class="btn btn-default" id="upload-to-input" value="Upload to Input Folder" />
             </div>
           </div>
         </form>
@@ -33,7 +34,7 @@
         </div>
         <div class="form-group"> 
           <div class="col-sm-12">
-            Output: <a id="output-link" href="http://localhost:5056/static//output" >http://localhost:5056/static//output</a>
+            Output: <a id="output-link" href="http://localhost:5055/static//output" >http://localhost:5055/static//output</a>
           </div>
         </div>
         <div class="form-group"> 
@@ -54,24 +55,35 @@
 <script>
 
 function updateOutputLink() {
-  $("#output-link").html("http://localhost:5056/static/"+ $("#task-id").val() +"/output")
-    $("#output-link").prop("href", "http://localhost:5056/static/"+ $("#task-id").val() +"/output")
+  $("#output-link").html("http://localhost:5055/static/"+ $("#task-id").val() +"/output")
+    $("#output-link").prop("href", "http://localhost:5055/static/"+ $("#task-id").val() +"/output")
 }
 $(document).ready(function() {
 
-  $('#upload-to-code').click(function () {
-    var formData = new FormData($('#upload-files-form')[0]);
+  function upload(formData) {
     $.ajax({
-      url: '/uploadcode',  
+      url: '/upload',
       type: 'POST',
       success: function completeHandler() {
-        alert(":)");
+        alert("File Upload completed");
       },
       data: formData,
       cache: false,
       contentType: false,
       processData: false
     });
+  }
+
+  $('#upload-to-code').click(function () {
+    var formData = new FormData($('#upload-files-form')[0]);
+    formData.append("dir", "code")
+    upload(formData);
+  });
+
+  $('#upload-to-input').click(function () {
+    var formData = new FormData($('#upload-files-form')[0]);
+    formData.append("dir", "input")
+    upload(formData);
   });
 
   $("#send-command").click(function() {
@@ -81,7 +93,7 @@ $(document).ready(function() {
       alert("Task Id and Command cannot be empty.");
       return;
     }
-    var socket = new WebSocket("ws://localhost:5056/run");
+    var socket = new WebSocket("ws://localhost:5055/run");
     socket.onopen = function(){
       $("#send-command").prop('disabled', true);
       $("#command").val("")
