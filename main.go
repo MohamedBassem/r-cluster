@@ -16,7 +16,7 @@ import (
 )
 
 const WorkingDir = "/mnt/nfs/working_dir/"
-const newLine = "====================================================================\n"
+const newLine = "\n====================================================================\n"
 
 func generateDirs(taskId string) {
 	os.MkdirAll(WorkingDir+taskId+"/input", 0755)
