@@ -54,7 +54,6 @@ EXECUTE_PID=`echo $!`
 
 LINES_READ=0
 PREV=""
-set -x
 while kill -0 $EXECUTE_PID 2> /dev/null; do
   PREV_C=$(echo -en "$PREV" | wc -c)
   TOTAL=`mesos-cat -i $TASK_NAME stdout`
@@ -63,7 +62,6 @@ while kill -0 $EXECUTE_PID 2> /dev/null; do
   PREV="$TOTAL"
   sleep 0.5
 done
-set +x
 
 sleep 5
 PREV_C=$(echo -en "$PREV" | wc -c)
