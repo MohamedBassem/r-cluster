@@ -40,7 +40,7 @@ COMMAND="docker run -v $WORKDIR_ROOT/$NAME/input:/input -v $WORKDIR_ROOT/$NAME/o
 MASTER=`mesos-resolve $(cat /etc/mesos/zk)`
 TASK_NAME=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`
 
-mesos-execute --master=$MASTER --name=$TASK_NAME --command="$COMMAND" > /dev/null 2>&1 &
+mesos-execute --master=$MASTER --name=$TASK_NAME --command="$COMMAND" --resources="cpus:4;mem:2048" > /dev/null 2>&1 &
 EXECUTE_PID=`echo $!`
 
 
