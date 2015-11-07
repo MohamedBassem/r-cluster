@@ -36,10 +36,16 @@ if [ -z "$NAME" ] || [ -z "$COMMAND" ]  ; then
 fi
 
 
-COMMAND="echo '=======> Output Start'; docker run -v $WORKDIR_ROOT/$NAME/input:/input -v $WORKDIR_ROOT/$NAME/output:/output -v $WORKDIR_ROOT/$NAME/code:/code 192.168.1.204:5011/bundled-r $COMMAND && echo '=======> Output End'"
+TASK_NAME=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`
+
+echo "#!/bin/bash" >> /$WORKDIR_ROOT/$NAME/${TASK_NAME}.sh
+echo "echo '=======> Output Start'" >> /$WORKDIR_ROOT/$NAME/${TASK_NAME}.sh
+echo "$COMMAND" >> /$WORKDIR_ROOT/$NAME/${TASK_NAME}.sh
+echo "echo '=======> Output End'" >> /$WORKDIR_ROOT/$NAME/${TASK_NAME}.sh
+
+COMMAND="docker run -v $WORKDIR_ROOT/$NAME/${TASK_NAME}.sh:/tmp/cmd.sh -v $WORKDIR_ROOT/$NAME/input:/input -v $WORKDIR_ROOT/$NAME/output:/output -v $WORKDIR_ROOT/$NAME/code:/code 192.168.1.204:5011/bundled-r /bin/bash /tmp/cmd.sh"
 
 MASTER=`mesos-resolve $(cat /etc/mesos/zk)`
-TASK_NAME=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`
 
 mesos-execute --master=$MASTER --name=$TASK_NAME --command="$COMMAND" --resources="cpus:4;mem:2048" > /dev/null 2>&1 &
 EXECUTE_PID=`echo $!`
