@@ -44,7 +44,7 @@ echo "echo -e '\n=======================> Output Start <======================='
 echo "$COMMAND" >> /$WORKDIR_ROOT/$NAME/tmp/${TASK_NAME}.sh
 echo "echo -e '=======================> Output End <=======================\n'" >> /$WORKDIR_ROOT/$NAME/tmp/${TASK_NAME}.sh
 
-COMMAND="docker run --rm -v $WORKDIR_ROOT/$NAME/tmp/${TASK_NAME}.sh:/tmp/cmd.sh -v $WORKDIR_ROOT/$NAME/input:/input -v $WORKDIR_ROOT/$NAME/output:/output -v $WORKDIR_ROOT/$NAME/code:/code 192.168.1.204:5011/bundled-r /bin/bash /tmp/cmd.sh"
+COMMAND="docker run --rm -v $WORKDIR_ROOT/$NAME:/task-dir -v $WORKDIR_ROOT/$NAME/tmp/${TASK_NAME}.sh:/tmp/cmd.sh -v $WORKDIR_ROOT/$NAME/input:/input -v $WORKDIR_ROOT/$NAME/output:/output -v $WORKDIR_ROOT/$NAME/code:/code 192.168.1.204:5011/bundled-r /bin/bash /tmp/cmd.sh"
 
 MASTER=`mesos-resolve $(cat /etc/mesos/zk)`
 
