@@ -1,6 +1,13 @@
 <html>
   <head>
+    <title>R Console</title>
     <link href="/assets/bootstrap.min.css" rel="stylesheet" >
+    <style type="text/css" media="screen">
+      #editor {
+        margin: 10px;
+        border: 2px black solid;
+      }
+    </style>
   </head>
   <body>
     <div class="col-sm-12">
@@ -27,6 +34,21 @@
             </div>
           </div>
         </form>
+
+
+        <div class="form-group">
+          <div class="col-sm-12"> 
+            <h4 id="editor-filename" >/code/.r</h4>
+          </div>
+          <div class="col-sm-12"> 
+            <div id="editor" style="min-height: 90px;">
+            </div>
+          </div>
+          <div class="col-sm-offset-11 col-sm-1"> 
+            <button id="submit-code" class="btn btn-default" >Submit code</button>
+          </div>
+        </div>
+
         <div class="form-group">
           <div class="col-sm-12"> 
             <textarea class="form-control" id="command-area" rows="22"disabled></textarea>
@@ -52,12 +74,15 @@
 
 <script src="/assets/jquery.min.js"></script>
 <script src="/assets/bootstrap.min.js"></script>
+<script src="/assets/ace/ace.js" type="text/javascript" charset="utf-8"></script>
 <script>
 
 function updateOutputLink() {
-  $("#output-link").html("http://optima-office:5055/static/"+ $("#task-id").val() +"/output")
-    $("#output-link").prop("href", "/static/"+ $("#task-id").val() +"/output")
+  $("#output-link").html("http://optima-office:5055/static/"+ $("#task-id").val() +"/output");
+  $("#output-link").prop("href", "/static/"+ $("#task-id").val() +"/output");
+  $("#editor-filename").html("/code/" + $("#task-id").val() +".r");
 }
+
 $(document).ready(function() {
 
   function upload(formData) {
@@ -72,6 +97,14 @@ $(document).ready(function() {
       contentType: false,
       processData: false
     });
+  }
+
+  function initEditor(){
+    editor = ace.edit("editor");
+    //editor.setTheme("ace/theme/monokai");
+    editor.setFontSize("15px");
+    editor.getSession().setMode("ace/mode/r");
+    editor.setValue("\na <- 1;\na;", -1)
   }
 
   $('#upload-to-code').click(function () {
@@ -106,7 +139,7 @@ $(document).ready(function() {
 
     }
     socket.onclose = function(){
-        $("#send-command").prop('disabled', false);
+      $("#send-command").prop('disabled', false);
       $("#command").prop('disabled', false);
     }
   })
@@ -126,5 +159,22 @@ $(document).ready(function() {
       $("#send-command").click();
     }
   })
+
+  $("#submit-code").click(function(event) {
+
+    taskId = $("#task-id").val();
+    code = editor.getValue();
+
+    var formdata = new FormData();
+    formdata.append("dir", "code");
+    formdata.append("task-id", taskId);
+    formdata.append("files", new Blob([code]), taskId + ".r");
+    upload(formdata);
+
+  })
+
+
+  initEditor();
 })
 </script>
+

@@ -103,6 +103,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing dir", http.StatusBadRequest)
 		return
 	}
+
 	generateDirs(r.FormValue("task-id"))
 	for _, fheaders := range r.MultipartForm.File {
 		for _, hdr := range fheaders {
