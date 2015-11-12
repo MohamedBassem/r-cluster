@@ -207,19 +207,19 @@ $(document).ready(function() {
           }
           return html;
         });
-        $('.typeahead').typeahead({
-          hint: true,
-          highlight: true,
-          minLength: 0
-        },
-        {
-          name: 'dirs',
-          source: new Bloodhound({
-            local: dirs,
-            queryTokenizer: Bloodhound.tokenizers.whitespace,
-            datumTokenizer: Bloodhound.tokenizers.whitespace
-          })
-        });
+//        $('.typeahead').typeahead({
+//          hint: true,
+//          highlight: true,
+//          minLength: 0
+//        },
+//        {
+//          name: 'dirs',
+//          source: new Bloodhound({
+//            local: dirs,
+//            queryTokenizer: Bloodhound.tokenizers.whitespace,
+//            datumTokenizer: Bloodhound.tokenizers.whitespace
+//          })
+//        });
       },
       cache: false,
       contentType: false,
