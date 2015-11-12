@@ -44,8 +44,9 @@
             <div id="editor" style="min-height: 90px;">
             </div>
           </div>
-          <div class="col-sm-offset-11 col-sm-1"> 
-            <button id="submit-code" class="btn btn-default" >Submit code</button>
+          <div class="col-sm-offset-10 col-sm-2"> 
+            <button id="submit-code" class="btn btn-default" >Upload code</button>
+            <button id="submit-code-and-run" class="btn btn-default" >Upload and Run</button>
           </div>
         </div>
 
@@ -85,13 +86,16 @@ function updateOutputLink() {
 
 $(document).ready(function() {
 
-  function upload(formData) {
+  function upload(formData, callback) {
+    if(callback === undefined){
+      callback = function completeHandler() {
+        alert("File Upload completed");
+      };
+    }
     $.ajax({
       url: '/upload',
       type: 'POST',
-      success: function completeHandler() {
-        alert("File Upload completed");
-      },
+      success: callback,
       data: formData,
       cache: false,
       contentType: false,
@@ -173,8 +177,25 @@ $(document).ready(function() {
 
   })
 
+  $("#submit-code-and-run").click(function(event) {
+    taskId = $("#task-id").val();
+    code = editor.getValue();
+
+    var formdata = new FormData();
+    formdata.append("dir", "code");
+    formdata.append("task-id", taskId);
+    formdata.append("files", new Blob([code]), taskId + ".r");
+
+    upload(formdata, function(){
+      $("#command").val("Rscript /code/" + taskId + ".r")
+      $("#send-command").click();
+    });
+
+  })
+
 
   initEditor();
+  $("#generate-random-string").click();
 })
 </script>
 
