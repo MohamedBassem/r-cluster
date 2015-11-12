@@ -18,7 +18,7 @@
         <form id="upload-files-form" enctype="multipart/form-data">
           <div class="form-group">
             <div class="col-sm-10">
-              <input type="text" class="form-control" name="task-id" id="task-id" oninput="updateOutputLink()" placeholder="Task Id" />
+              <input type="text" class="form-control" class="typeahead" name="task-id" id="task-id" oninput="updateOutputLink()" placeholder="Task Id" />
             </div>
             <div class="col-sm-2">
               <input type="button" class="btn btn-default" id="generate-random-string" value="Generate Random String" />
@@ -76,6 +76,7 @@
 <script src="/assets/jquery.min.js"></script>
 <script src="/assets/bootstrap.min.js"></script>
 <script src="/assets/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="/assets/typeahead.bundle.min.js" type="text/javascript"></script>
 <script>
 
 function updateOutputLink() {
@@ -193,8 +194,37 @@ $(document).ready(function() {
 
   })
 
+  function initAutoCompleter(){
+    $.ajax({
+      url: '/static',
+      type: 'GET',
+      success: function(data){
+        var links = $(data).find("a");
+        dirs = $.map(links, function(a) {
+          html = $(a).html();
+          if(html.substr(-1) === '/') {
+            html = html.substr(0, html.length - 1);
+          }
+          return html;
+        });
+        $('.typeahead').typeahead({
+          hint: true,
+          highlight: true,
+          minLength: 0
+        },
+        {
+          name: 'dirs',
+          source: dirs
+        });
+      },
+      cache: false,
+      contentType: false,
+      processData: false
+    });
+  }
 
   initEditor();
+  initAutoCompleter();
   $("#generate-random-string").click();
 })
 </script>
