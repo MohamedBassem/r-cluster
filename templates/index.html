@@ -214,7 +214,11 @@ $(document).ready(function() {
         },
         {
           name: 'dirs',
-          source: dirs
+          source: new Bloodhound({
+            local: dirs,
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            datumTokenizer: Bloodhound.tokenizers.whitespace
+          })
         });
       },
       cache: false,
