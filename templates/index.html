@@ -2,6 +2,7 @@
   <head>
     <title>R Console</title>
     <link href="/assets/bootstrap.min.css" rel="stylesheet" >
+    <link href="/assets/jquery.auto-complete.css" rel="stylesheet" >
     <style type="text/css" media="screen">
       #editor {
         margin: 10px;
@@ -76,7 +77,7 @@
 <script src="/assets/jquery.min.js"></script>
 <script src="/assets/bootstrap.min.js"></script>
 <script src="/assets/ace/ace.js" type="text/javascript" charset="utf-8"></script>
-<script src="/assets/typeahead.bundle.min.js" type="text/javascript"></script>
+<script src="/assets/jquery.auto-complete.min.js" type="text/javascript"></script>
 <script>
 
 function updateOutputLink() {
@@ -207,19 +208,19 @@ $(document).ready(function() {
           }
           return html;
         });
-//        $('.typeahead').typeahead({
-//          hint: true,
-//          highlight: true,
-//          minLength: 0
-//        },
-//        {
-//          name: 'dirs',
-//          source: new Bloodhound({
-//            local: dirs,
-//            queryTokenizer: Bloodhound.tokenizers.whitespace,
-//            datumTokenizer: Bloodhound.tokenizers.whitespace
-//          })
-//        });
+
+        $("#task-id").autoComplete({
+          minChars: 2,
+          source: function(term, suggest){
+            term = term.toLowerCase();
+            var choices = dirs;
+            var matches = [];
+            for (i=0; i<choices.length; i++)
+              if (~choices[i].toLowerCase().indexOf(term)) matches.push(choices[i]);
+            suggest(matches);
+          }
+        });
+
       },
       cache: false,
       contentType: false,
