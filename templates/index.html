@@ -87,6 +87,7 @@ function updateOutputLink() {
 }
 
 $(document).ready(function() {
+  var returnFocus = false;
 
   function upload(formData, callback) {
     if(callback === undefined){
@@ -136,6 +137,7 @@ $(document).ready(function() {
     socket.onopen = function(){
       $("#send-command").prop('disabled', true);
       $("#command").prop('disabled', true);
+      $("##submit-code-and-run").prop('disabled', true);
       $("#command").val("")
       socket.send(taskId + " " + command);
     }
@@ -147,6 +149,11 @@ $(document).ready(function() {
     socket.onclose = function(){
       $("#send-command").prop('disabled', false);
       $("#command").prop('disabled', false);
+      $("##submit-code-and-run").prop('disabled', false);
+      if(returnFocus){
+        $("command").focus();
+      }
+      returnFocus = false;
     }
   })
 
@@ -162,12 +169,12 @@ $(document).ready(function() {
 
   $("#command").keyup(function(event) {
     if(event.keyCode == 13) {
+      returnFocus = true;
       $("#send-command").click();
     }
   })
 
   $("#submit-code").click(function(event) {
-
     taskId = $("#task-id").val();
     code = editor.getValue();
 
