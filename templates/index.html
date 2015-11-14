@@ -210,7 +210,7 @@ $(document).ready(function() {
         });
 
         $("#task-id").autoComplete({
-          minChars: 2,
+          minChars: 0,
           source: function(term, suggest){
             term = term.toLowerCase();
             var choices = dirs;
