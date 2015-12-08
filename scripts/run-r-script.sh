@@ -48,7 +48,7 @@ COMMAND="docker run --rm -w /task-dir -v $WORKDIR_ROOT/$NAME:/task-dir -v $WORKD
 
 MASTER=`mesos-resolve $(cat /etc/mesos/zk)`
 
-mesos-execute --master=$MASTER --name=$TASK_NAME --command="$COMMAND" --resources="cpus:4;mem:2048" > /dev/null 2>&1 &
+mesos-execute --master=$MASTER --name=$TASK_NAME --command="$COMMAND" --resources="cpus:1;mem:2048" > /dev/null 2>&1 &
 EXECUTE_PID=`echo $!`
 
 
