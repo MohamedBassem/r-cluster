@@ -36,7 +36,7 @@ if [ -z "$NAME" ] || [ -z "$COMMAND" ]  ; then
 fi
 
 
-TASK_NAME=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`
+export TASK_NAME=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`
 
 mkdir -p /$WORKDIR_ROOT/$NAME/tmp
 echo "#!/bin/bash" >> /$WORKDIR_ROOT/$NAME/tmp/${TASK_NAME}.sh
@@ -48,15 +48,22 @@ COMMAND="docker run --rm -w /task-dir -v $WORKDIR_ROOT/$NAME:/task-dir -v $WORKD
 
 MASTER=`mesos-resolve $(cat /etc/mesos/zk)`
 
-mesos-execute --master=$MASTER --name=$TASK_NAME --command="$COMMAND" --resources="cpus:1;mem:2048" > /dev/null 2>&1 &
+mkdir -p tmp
+mkfifo tmp/$TASK_NAME
+function execute_job {
+  mesos-execute --master=$MASTER --name=$TASK_NAME --command="$COMMAND" --resources="cpus:1;mem:2048" | grep "Framework registered with" | awk '{print $4}' > tmp/$TASK_NAME
+}
+
+execute_job > /dev/null 2>&1 &
 EXECUTE_PID=`echo $!`
 
+FRAMEWORK_NAME=`cat tmp/$TASK_NAME`
 
 LINES_READ=0
 PREV=""
 while kill -0 $EXECUTE_PID 2> /dev/null; do
   PREV_C=$(echo -en "$PREV" | wc -c)
-  TOTAL=`mesos-cat -i $TASK_NAME stdout`
+  TOTAL=`mesos-cat --master=$MASTER --framework=$FRAMEWORK_NAME --task=$TASK_NAME --file=stdout`
   TOTAL_C=$(echo -en "$TOTAL" | wc -c)
   echo -en "$TOTAL" | tail -c $((TOTAL_C - PREV_C))
   PREV="$TOTAL"
@@ -65,6 +72,7 @@ done
 
 sleep 5
 PREV_C=$(echo -en "$PREV" | wc -c)
-TOTAL=`mesos-cat -i $TASK_NAME stdout`
+TOTAL=`mesos-cat --master=$MASTER --framework=$FRAMEWORK_NAME --task=$TASK_NAME --file=stdout`
 TOTAL_C=$(echo -en "$TOTAL" | wc -c)
 echo -en "$TOTAL" | tail -c $((TOTAL_C - PREV_C))
+rm tmp/$TASK_NAME
