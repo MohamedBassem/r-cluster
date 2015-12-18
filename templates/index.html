@@ -58,7 +58,7 @@
         </div>
         <div class="form-group"> 
           <div class="col-sm-12">
-            Output: <a id="output-link" href="/static//output" >http://optima-office:5055/static//output</a>
+            Output: <a id="output-link" href="" ></a>
           </div>
         </div>
         <div class="form-group"> 
@@ -81,7 +81,7 @@
 <script>
 
 function updateOutputLink() {
-  $("#output-link").html("http://optima-office:5055/static/"+ $("#task-id").val() +"/output");
+  $("#output-link").html(window.location.origin + "/static/"+ $("#task-id").val() +"/output");
   $("#output-link").prop("href", "/static/"+ $("#task-id").val() +"/output");
   $("#editor-filename").html("/code/" + $("#task-id").val() +".r");
 }
@@ -239,6 +239,7 @@ $(document).ready(function() {
   initEditor();
   initAutoCompleter();
   $("#generate-random-string").click();
+
 })
 </script>
 
