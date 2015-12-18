@@ -13,6 +13,14 @@ The tool needs a special architecture to run on :
 - Docker installed on all the machines.
 - A shared storage (e.g. NFS) between all the cluster nodes mounted at `/mnt/nfs`.
 
+Then on the master node run :
+
+```bash
+go get https://github.com/MohamedBassem/r-cluster
+cd $GOPATH/src/github.com/MohamedBassem/r-cluster
+./r-cluster
+```
+
 ### TODO
 
 - A better UI.
