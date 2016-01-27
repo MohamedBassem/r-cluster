@@ -80,10 +80,22 @@
 <script src="/assets/jquery.auto-complete.min.js" type="text/javascript"></script>
 <script>
 
+
+function generateRandomString(len) {
+  var ret = "";
+  var seed = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  for(var i=0;i<len;i++){
+    ret += seed[parseInt(Math.random()*seed.length)]
+  }
+  return ret;
+}
+
+var fileRandom = generateRandomString(10);
+
 function updateOutputLink() {
   $("#output-link").html(window.location.origin + "/static/"+ $("#task-id").val() +"/output");
   $("#output-link").prop("href", "/static/"+ $("#task-id").val() +"/output");
-  $("#editor-filename").html("/code/" + $("#task-id").val() +".r");
+  $("#editor-filename").html("/code/" + $("#task-id").val() + "_" + fileRandom + ".r");
 }
 
 $(document).ready(function() {
@@ -158,12 +170,7 @@ $(document).ready(function() {
   })
 
   $("#generate-random-string").click(function() {
-    var ret = "";
-    var seed = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    for(var i=0;i<20;i++){
-      ret += seed[parseInt(Math.random()*seed.length)]
-    }
-    $("#task-id").val(ret);
+    $("#task-id").val(generateRandomString(20));
     updateOutputLink();
   })
 
@@ -181,7 +188,7 @@ $(document).ready(function() {
     var formdata = new FormData();
     formdata.append("dir", "code");
     formdata.append("task-id", taskId);
-    formdata.append("files", new Blob([code]), taskId + ".r");
+    formdata.append("files", new Blob([code]), taskId + "_" + fileRandom + ".r");
     upload(formdata);
 
   })
@@ -193,10 +200,10 @@ $(document).ready(function() {
     var formdata = new FormData();
     formdata.append("dir", "code");
     formdata.append("task-id", taskId);
-    formdata.append("files", new Blob([code]), taskId + ".r");
+    formdata.append("files", new Blob([code]), taskId + "_" + fileRandom + ".r");
 
     upload(formdata, function(){
-      $("#command").val("Rscript /code/" + taskId + ".r")
+      $("#command").val("Rscript /code/" + taskId + "_" + fileRandom + ".r")
       $("#send-command").click();
     });
 
