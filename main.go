@@ -24,6 +24,7 @@ func generateDirs(taskId string) {
 	os.MkdirAll(WorkingDir+taskId+"/input", 0755)
 	os.MkdirAll(WorkingDir+taskId+"/output", 0755)
 	os.MkdirAll(WorkingDir+taskId+"/code", 0755)
+	os.MkdirAll(WorkingDir+taskId+"/stdfiles", 0755)
 }
 
 func runCommand(ws *websocket.Conn, jobID, command string) {

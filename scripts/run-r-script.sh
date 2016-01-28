@@ -67,11 +67,13 @@ while kill -0 $EXECUTE_PID 2> /dev/null; do
 
   ERR_TOTAL=`mesos-cat --master=$MASTER --framework=$FRAMEWORK_NAME --task=$TASK_NAME --file=stderr`
   echo -en "$ERR_TOTAL" | tail -c +$((ERR_COUNT + 1)) >&2
+  echo -en "$ERR_TOTAL" | tail -c +$((ERR_COUNT + 1)) >> /$WORKDIR_ROOT/$NAME/stdfiles/${TASK_NAME}_stderr.txt
   ERR_COUNT=$(echo -en "$ERR_TOTAL" | wc -c)
 
 
   OUT_TOTAL=`mesos-cat --master=$MASTER --framework=$FRAMEWORK_NAME --task=$TASK_NAME --file=stdout`
   echo -en "$OUT_TOTAL" | tail -c +$((OUT_COUNT + 1))
+  echo -en "$OUT_TOTAL" | tail -c +$((OUT_COUNT + 1)) >> /$WORKDIR_ROOT/$NAME/stdfiles/${TASK_NAME}_stdout.txt
   OUT_COUNT=$(echo -en "$OUT_TOTAL" | wc -c)
 
   sleep 0.1
@@ -82,8 +84,10 @@ sleep 5
 
 ERR_TOTAL=`mesos-cat --master=$MASTER --framework=$FRAMEWORK_NAME --task=$TASK_NAME --file=stderr`
 echo -en "$ERR_TOTAL" | tail -c +$((ERR_COUNT + 1)) >&2
+echo -en "$ERR_TOTAL" | tail -c +$((ERR_COUNT + 1)) >> /$WORKDIR_ROOT/$NAME/stdfiles/${TASK_NAME}_stderr.txt
 
 OUT_TOTAL=`mesos-cat --master=$MASTER --framework=$FRAMEWORK_NAME --task=$TASK_NAME --file=stdout`
 echo -en "$OUT_TOTAL" | tail -c +$((OUT_COUNT + 1))
+echo -en "$OUT_TOTAL" | tail -c +$((OUT_COUNT + 1)) >> /$WORKDIR_ROOT/$NAME/stdfiles/${TASK_NAME}_stdout.txt
 
 rm tmp/$TASK_NAME
