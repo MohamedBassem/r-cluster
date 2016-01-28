@@ -41,8 +41,10 @@ export TASK_NAME=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1
 mkdir -p /$WORKDIR_ROOT/$NAME/tmp
 echo "#!/bin/bash" >> /$WORKDIR_ROOT/$NAME/tmp/${TASK_NAME}.sh
 echo "echo -e '\n=======================> Output Start <======================='" >> /$WORKDIR_ROOT/$NAME/tmp/${TASK_NAME}.sh
+echo "echo -e '\n=======================> Output Start <=======================' >&2" >> /$WORKDIR_ROOT/$NAME/tmp/${TASK_NAME}.sh
 echo "$COMMAND" >> /$WORKDIR_ROOT/$NAME/tmp/${TASK_NAME}.sh
 echo "echo -e '=======================> Output End <=======================\n'" >> /$WORKDIR_ROOT/$NAME/tmp/${TASK_NAME}.sh
+echo "echo -e '=======================> Output End <=======================\n' >&2" >> /$WORKDIR_ROOT/$NAME/tmp/${TASK_NAME}.sh
 
 COMMAND="docker run --rm -w /task-dir -v $WORKDIR_ROOT/$NAME:/task-dir -v $WORKDIR_ROOT/$NAME/tmp/${TASK_NAME}.sh:/tmp/cmd.sh -v $WORKDIR_ROOT/$NAME/input:/input -v $WORKDIR_ROOT/$NAME/output:/output -v $WORKDIR_ROOT/$NAME/code:/code saherneklawy/r-datascience-docker /bin/bash /tmp/cmd.sh"
 
