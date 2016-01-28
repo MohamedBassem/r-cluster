@@ -29,6 +29,7 @@ func generateDirs(taskId string) {
 func runCommand(ws *websocket.Conn, jobID, command string) {
 	generateDirs(jobID)
 	websocket.Message.Send(ws, "STDOUT: $ "+command+"\n")
+	websocket.Message.Send(ws, "STDERR: $ "+command+"\n")
 	cmd := exec.Command("./scripts/run-r-script.sh", "--name", jobID, "--command", command)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -81,6 +82,7 @@ func runCommand(ws *websocket.Conn, jobID, command string) {
 	go pinger(ws, lock)
 	cmd.Wait()
 	websocket.Message.Send(ws, "STDOUT: "+newLine)
+	websocket.Message.Send(ws, "STDERR: "+newLine)
 	log.Printf("Command '%v'@%v Done..", command, jobID)
 }
 
