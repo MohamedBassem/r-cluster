@@ -63,7 +63,8 @@
         </div>
         <div class="form-group"> 
           <div class="col-sm-12">
-            Output: <a id="output-link" href="" ></a>
+            Output: <a id="output-link" href="" ></a><br />
+            Stdfiles: <a id="stdfiles-link" href="" ></a>
           </div>
         </div>
         <div class="form-group"> 
@@ -100,6 +101,10 @@ var fileRandom = generateRandomString(10);
 function updateOutputLink() {
   $("#output-link").html(window.location.origin + "/static/"+ $("#task-id").val() +"/output");
   $("#output-link").prop("href", "/static/"+ $("#task-id").val() +"/output");
+
+
+  $("#stdfiles-link").html(window.location.origin + "/static/"+ $("#task-id").val() +"/stdfiles");
+  $("#stdfiles-link").prop("href", "/static/"+ $("#task-id").val() +"/stdfiles");
   $("#editor-filename").html("/code/" + $("#task-id").val() + "_" + fileRandom + ".r");
 }
 
