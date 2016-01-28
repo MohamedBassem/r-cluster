@@ -47,7 +47,7 @@ func runCommand(ws *websocket.Conn, jobID, command string) {
 	err = cmd.Start()
 	if err != nil {
 		log.Println(err.Error())
-		websocket.Message.Send(ws, "STDERR: "+err.Error()+"\n"+newLine)
+		websocket.Message.Send(ws, "STDERR: "+err.Error()+"\nSTDOUT: "+newLine)
 		return
 	}
 
