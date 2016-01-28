@@ -45,6 +45,7 @@
             <div id="editor" style="min-height: 500px;">
             </div>
           </div>
+        </div>
           <div class="col-sm-offset-10 col-sm-2"> 
             <button id="submit-code" class="btn btn-default" >Upload code</button>
             <button id="submit-code-and-run" class="btn btn-default" >Upload and Run</button>
@@ -67,6 +68,16 @@
             Stdfiles: <a id="stdfiles-link" href="" ></a>
           </div>
         </div>
+
+        <div class="form-group"> 
+          <div class="col-sm-offset-6"> 
+            <input id="cpus-limit" class="form-control" type="text" value="1" placeholder="CPU Limit" />
+          </div>
+          <div class="col-sm-offset-6"> 
+            <input id="memory-limit" class="form-control" type="text" value="2048" placeholder="Memory Limit" />
+          </div>
+        </div>
+
         <div class="form-group"> 
           <div class="col-sm-11">
             <input type="text" class="form-control" id="command" />
@@ -168,8 +179,10 @@ $(document).ready(function() {
   $("#send-command").click(function() {
     taskId = $("#task-id").val();
     command = $("#command").val();
-    if(taskId == "" || command == ""){
-      alert("Task Id and Command cannot be empty.");
+    memory = $("#memory-limit").val();
+    cpus = $("#cpus-limit").val();
+    if(taskId == "" || command == ""  || cpus == "" || memory == "" ){
+      alert("Task Id, Command, cpu and memory limits cannot be empty.");
       return;
     }
     var socket = new WebSocket("ws://" + window.location.host + "/run");
@@ -178,7 +191,7 @@ $(document).ready(function() {
       $("#command").prop('disabled', true);
       $("#submit-code-and-run").prop('disabled', true);
       $("#command").val("")
-      socket.send(taskId + " " + command);
+      socket.send(taskId + " " + cpus + " " + memory + " " + command);
     }
 
     socket.onmessage = handleWebSocketMessage;

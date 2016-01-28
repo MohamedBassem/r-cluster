@@ -20,6 +20,14 @@ case $key in
     COMMAND="$2"
     shift
     ;;
+    --cpus)
+    CPUS_COUNT="$2"
+    shift
+    ;;
+    --memory)
+    MEMORY="$2"
+    shift
+    ;;
     *)
     echo "INVALID ARGUMENT $key"
     print_usage
@@ -29,7 +37,7 @@ esac
 shift # past argument or value
 done
 
-if [ -z "$NAME" ] || [ -z "$COMMAND" ]  ; then
+if [ -z "$NAME" ] || [ -z "$COMMAND" ] || [ -z "$MEMORY" ] || [ -z "$CPUS_COUNT" ] ; then
   echo "Missing arguments"
   print_usage
   exit 1
@@ -53,7 +61,7 @@ MASTER=`mesos-resolve $(cat /etc/mesos/zk)`
 mkdir -p tmp
 mkfifo tmp/$TASK_NAME
 function execute_job {
-  mesos-execute --master=$MASTER --name=$TASK_NAME --command="$COMMAND" --resources="cpus:1;mem:2048" | grep "Framework registered with" | awk '{print $4}' > tmp/$TASK_NAME
+  mesos-execute --master=$MASTER --name=$TASK_NAME --command="$COMMAND" --resources="cpus:$CPUS_COUNT;mem:$MEMORY" | grep "Framework registered with" | awk '{print $4}' > tmp/$TASK_NAME
 }
 
 execute_job > /dev/null 2>&1 &

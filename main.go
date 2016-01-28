@@ -27,11 +27,11 @@ func generateDirs(taskId string) {
 	os.MkdirAll(WorkingDir+taskId+"/stdfiles", 0755)
 }
 
-func runCommand(ws *websocket.Conn, jobID, command string) {
+func runCommand(ws *websocket.Conn, jobID, command, cpus, memory string) {
 	generateDirs(jobID)
 	websocket.Message.Send(ws, "STDOUT: $ "+command+"\n")
 	websocket.Message.Send(ws, "STDERR: $ "+command+"\n")
-	cmd := exec.Command("./scripts/run-r-script.sh", "--name", jobID, "--command", command)
+	cmd := exec.Command("./scripts/run-r-script.sh", "--name", jobID, "--command", command, "--cpus", cpus, "--memory", memory)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Println(err.Error())
@@ -102,9 +102,11 @@ func handleRun(ws *websocket.Conn) {
 	}
 
 	jobID := tmp[0]
-	command := strings.Join(tmp[1:], " ")
+	cpus := tmp[1]
+	memory := tmp[2]
+	command := strings.Join(tmp[3:], " ")
 
-	runCommand(ws, jobID, command)
+	runCommand(ws, jobID, command, cpus, memory)
 
 }
 
