@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"log"
@@ -10,6 +11,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"golang.org/x/net/websocket"
@@ -22,16 +24,6 @@ func generateDirs(taskId string) {
 	os.MkdirAll(WorkingDir+taskId+"/input", 0755)
 	os.MkdirAll(WorkingDir+taskId+"/output", 0755)
 	os.MkdirAll(WorkingDir+taskId+"/code", 0755)
-}
-
-func pinger(ws *websocket.Conn) {
-	for {
-		err := websocket.Message.Send(ws, "")
-		if err != nil {
-			return
-		}
-		time.Sleep(time.Second * 2)
-	}
 }
 
 func runCommand(ws *websocket.Conn, jobID, command string) {
@@ -59,11 +51,37 @@ func runCommand(ws *websocket.Conn, jobID, command string) {
 		return
 	}
 
-	go io.Copy(ws, stdout)
-	//go io.Copy(ws, stderr)
-	go pinger(ws)
+	prefixerFuction := func(prefix string, r io.Reader, w *websocket.Conn, lock sync.Mutex) {
+		scanner := bufio.NewScanner(r)
+		for scanner.Scan() {
+			lock.Lock()
+			err := websocket.Message.Send(w, "")
+			lock.Unlock()
+			if err != nil {
+				return
+			}
+		}
+	}
+
+	pinger := func(ws *websocket.Conn, lock sync.Mutex) {
+		for {
+			lock.Lock()
+			err := websocket.Message.Send(ws, "PING")
+			lock.Unlock()
+			if err != nil {
+				return
+			}
+			time.Sleep(time.Second * 2)
+		}
+	}
+
+	lock := *new(sync.Mutex)
+	go prefixerFuction("STDOUT: ", stdout, ws, lock)
+	go prefixerFuction("STDERR: ", stderr, ws, lock)
+	go pinger(ws, lock)
 	cmd.Wait()
 	websocket.Message.Send(ws, newLine)
+	ws.Close()
 	log.Printf("Command '%v'@%v Done..", command, jobID)
 }
 

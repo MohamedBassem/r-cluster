@@ -126,6 +126,23 @@ $(document).ready(function() {
     editor.setValue("\na <- 1;\na;", -1)
   }
 
+
+  function handleWebSocketMessage(msg){
+    
+    var str = msg.data;
+    if(data.startsWith("STDOUT: ")){
+      str = str.replace(/^STDOUT :/, "");
+    }else if(data.startsWith("STDERR: ")){
+      // Do Nothing
+    }else if(data === "PING") {
+      str = str.replace(/^PING$/, "");
+    }
+
+    $("#command-area").val($("#command-area").val() + str);
+    $("#command-area").scrollTop($("#command-area").get(0).scrollHeight);
+
+  }
+
   $('#upload-to-code').click(function () {
     var formData = new FormData($('#upload-files-form')[0]);
     formData.append("dir", "code")
@@ -153,11 +170,9 @@ $(document).ready(function() {
       $("#command").val("")
       socket.send(taskId + " " + command);
     }
-    socket.onmessage = function(msg){
-      $("#command-area").val($("#command-area").val() + msg.data);
-      $("#command-area").scrollTop($("#command-area").get(0).scrollHeight);
 
-    }
+    socket.onmessage = handleWebSocketMessage;
+
     socket.onclose = function(){
       $("#send-command").prop('disabled', false);
       $("#command").prop('disabled', false);
