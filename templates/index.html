@@ -131,7 +131,7 @@ $(document).ready(function() {
     
     var str = msg.data;
     if(str.startsWith("STDOUT: ")){
-      str = str.replace(/^STDOUT:/, "");
+      str = str.replace(/^STDOUT: /, "");
     }else if(str.startsWith("STDERR: ")){
       // Do Nothing
     }else if(str === "PING") {
