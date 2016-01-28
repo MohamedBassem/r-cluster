@@ -4,7 +4,7 @@ A simple go server to schedule R scripts on a mesos cluster.
 
 ### What is this?
 
-Refer to this medium post and this [deployment template repo](https://github.com/MohamedBassem/azure-rconsole-template) for details and use cases.
+Refer to this [medium post](https://medium.com/optima-blog/the-distributed-r-console-163a33d5c27) and this [deployment template repo](https://github.com/MohamedBassem/azure-rconsole-template) for details and use cases.
 
 ### Deployment
 
