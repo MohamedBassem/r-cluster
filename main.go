@@ -28,7 +28,7 @@ func generateDirs(taskId string) {
 
 func runCommand(ws *websocket.Conn, jobID, command string) {
 	generateDirs(jobID)
-	websocket.Message.Send(ws, "$ "+command+"\n")
+	websocket.Message.Send(ws, "STDOUT: $ "+command+"\n")
 	cmd := exec.Command("./scripts/run-r-script.sh", "--name", jobID, "--command", command)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -47,7 +47,7 @@ func runCommand(ws *websocket.Conn, jobID, command string) {
 	err = cmd.Start()
 	if err != nil {
 		log.Println(err.Error())
-		websocket.Message.Send(ws, err.Error()+"\n"+newLine)
+		websocket.Message.Send(ws, "STDERR: "+err.Error()+"\n"+newLine)
 		return
 	}
 
@@ -55,7 +55,7 @@ func runCommand(ws *websocket.Conn, jobID, command string) {
 		scanner := bufio.NewScanner(r)
 		for scanner.Scan() {
 			lock.Lock()
-			err := websocket.Message.Send(w, "")
+			err := websocket.Message.Send(w, prefix+scanner.Text())
 			lock.Unlock()
 			if err != nil {
 				return
@@ -80,8 +80,7 @@ func runCommand(ws *websocket.Conn, jobID, command string) {
 	go prefixerFuction("STDERR: ", stderr, ws, lock)
 	go pinger(ws, lock)
 	cmd.Wait()
-	websocket.Message.Send(ws, newLine)
-	ws.Close()
+	websocket.Message.Send(ws, "STDOUT: "+newLine)
 	log.Printf("Command '%v'@%v Done..", command, jobID)
 }
 

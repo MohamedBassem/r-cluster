@@ -130,11 +130,11 @@ $(document).ready(function() {
   function handleWebSocketMessage(msg){
     
     var str = msg.data;
-    if(data.startsWith("STDOUT: ")){
+    if(str.startsWith("STDOUT: ")){
       str = str.replace(/^STDOUT :/, "");
-    }else if(data.startsWith("STDERR: ")){
+    }else if(str.startsWith("STDERR: ")){
       // Do Nothing
-    }else if(data === "PING") {
+    }else if(str === "PING") {
       str = str.replace(/^PING$/, "");
     }
 
