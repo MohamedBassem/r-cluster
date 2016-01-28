@@ -59,20 +59,28 @@ EXECUTE_PID=`echo $!`
 
 FRAMEWORK_NAME=`cat tmp/$TASK_NAME`
 
-LINES_READ=0
-PREV=""
+OUT_COUNT=0
+ERR_COUNT=0
 while kill -0 $EXECUTE_PID 2> /dev/null; do
-  PREV_C=$(echo -en "$PREV" | wc -c)
-  TOTAL=`mesos-cat --master=$MASTER --framework=$FRAMEWORK_NAME --task=$TASK_NAME --file=stdout`
-  TOTAL_C=$(echo -en "$TOTAL" | wc -c)
-  echo -en "$TOTAL" | tail -c $((TOTAL_C - PREV_C))
-  PREV="$TOTAL"
+  OUT_TOTAL=`mesos-cat --master=$MASTER --framework=$FRAMEWORK_NAME --task=$TASK_NAME --file=stdout`
+  echo -en "$OUT_TOTAL" | tail -c +$((OUT_COUNT + 1))
+  OUT_COUNT=$(echo -en "$OUT_TOTAL" | wc -c)
+
+
+  ERR_TOTAL=`mesos-cat --master=$MASTER --framework=$FRAMEWORK_NAME --task=$TASK_NAME --file=stderr`
+  echo -en "$ERR_TOTAL" | tail -c +$((ERR_COUNT + 1))
+  ERR_COUNT=$(echo -en "$ERR_TOTAL" | wc -c)
+
   sleep 0.5
 done
 
 sleep 5
-PREV_C=$(echo -en "$PREV" | wc -c)
-TOTAL=`mesos-cat --master=$MASTER --framework=$FRAMEWORK_NAME --task=$TASK_NAME --file=stdout`
-TOTAL_C=$(echo -en "$TOTAL" | wc -c)
-echo -en "$TOTAL" | tail -c $((TOTAL_C - PREV_C))
+
+OUT_TOTAL=`mesos-cat --master=$MASTER --framework=$FRAMEWORK_NAME --task=$TASK_NAME --file=stdout`
+echo -en "$OUT_TOTAL" | tail -c +$((OUT_COUNT + 1))
+
+
+ERR_TOTAL=`mesos-cat --master=$MASTER --framework=$FRAMEWORK_NAME --task=$TASK_NAME --file=stderr`
+echo -en "$ERR_TOTAL" | tail -c +$((ERR_COUNT + 1))
+
 rm tmp/$TASK_NAME
