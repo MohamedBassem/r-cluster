@@ -58,6 +58,7 @@ func runCommand(ws *websocket.Conn, jobID, command string) {
 			err := websocket.Message.Send(w, "")
 			lock.Unlock()
 			if err != nil {
+				fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 				return
 			}
 		}
@@ -69,6 +70,7 @@ func runCommand(ws *websocket.Conn, jobID, command string) {
 			err := websocket.Message.Send(ws, "PING")
 			lock.Unlock()
 			if err != nil {
+				fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 				return
 			}
 			time.Sleep(time.Second * 2)
