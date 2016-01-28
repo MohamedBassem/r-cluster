@@ -55,7 +55,7 @@ func runCommand(ws *websocket.Conn, jobID, command string) {
 		scanner := bufio.NewScanner(r)
 		for scanner.Scan() {
 			lock.Lock()
-			err := websocket.Message.Send(w, prefix+scanner.Text())
+			err := websocket.Message.Send(w, prefix+scanner.Text()+"\n")
 			lock.Unlock()
 			if err != nil {
 				return
