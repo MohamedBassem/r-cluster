@@ -86,15 +86,8 @@ func runCommand(ws *websocket.Conn, jobID, command, cpus, memory string) {
 	go prefixerFuction("STDERR: ", stderr, ws, lock)
 	go pinger(ws, lock)
 
-	doneChan := make(chan error)
-	go func() {
-		doneChan <- cmd.Wait()
-	}()
-
-	select {
-	case <-doneChan:
-		UnregisterJob(jobID, command, rClusterJobId)
-	}
+	cmd.Wait()
+	UnregisterJob(jobID, command, rClusterJobId)
 
 	websocket.Message.Send(ws, "STDOUT: "+newLine)
 	websocket.Message.Send(ws, "STDERR: "+newLine)
