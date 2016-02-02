@@ -65,7 +65,7 @@
         <div class="form-group"> 
           <div class="col-sm-12">
             Output: <a id="output-link" href="" ></a><br />
-            Stdfiles: <a id="stdfiles-link" href="" ></a>
+            Stdfiles: <a id="stdfiles-link" href="" ></a><br />
             Running Jobs: <a id="running-jobs-link" href="" ></a>
           </div>
         </div>
@@ -119,8 +119,8 @@ function updateOutputLink() {
   $("#stdfiles-link").prop("href", "/static/"+ $("#task-id").val() +"/stdfiles");
 
 
-  $("#running-jobs-links-link").html(window.location.origin + "/"+ $("#task-id").val() +"/running");
-  $("#running-jobs-links-link").prop("href", "/"+ $("#task-id").val() +"/running");
+  $("#running-jobs-link").html(window.location.origin + "/"+ $("#task-id").val() +"/running");
+  $("#running-jobs-link").prop("href", "/"+ $("#task-id").val() +"/running");
 
   $("#editor-filename").html("/code/" + $("#task-id").val() + "_" + fileRandom + ".r");
 }
