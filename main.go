@@ -52,6 +52,7 @@ func runCommand(ws *websocket.Conn, jobID, command, cpus, memory string) {
 		websocket.Message.Send(ws, "STDERR: "+err.Error()+"\nSTDOUT: "+newLine)
 		return
 	}
+	RegisterJob(jobID, command, cmd)
 
 	prefixerFuction := func(prefix string, r io.Reader, w *websocket.Conn, lock sync.Mutex) {
 		scanner := bufio.NewScanner(r)
@@ -81,7 +82,17 @@ func runCommand(ws *websocket.Conn, jobID, command, cpus, memory string) {
 	go prefixerFuction("STDOUT: ", stdout, ws, lock)
 	go prefixerFuction("STDERR: ", stderr, ws, lock)
 	go pinger(ws, lock)
-	cmd.Wait()
+
+	doneChan := make(chan error)
+	go func() {
+		doneChan <- cmd.Wait()
+	}()
+
+	select {
+	case <-doneChan:
+		UnregisterJob(jobID, command)
+	}
+
 	websocket.Message.Send(ws, "STDOUT: "+newLine)
 	websocket.Message.Send(ws, "STDERR: "+newLine)
 	log.Printf("Command '%v'@%v Done..", command, jobID)
@@ -156,9 +167,20 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func handleRunning(w http.ResponseWriter, r *http.Request) {
+	taskId := r.URL.Query().Get("task-id")
+	if taskId == "" {
+		http.Error(w, "Missing task-id", http.StatusBadRequest)
+		return
+	}
+	commands := GetAllJobs(taskId)
+	w.Write([]byte(strings.Join(commands, ",")))
+}
+
 func main() {
 	http.Handle("/run", websocket.Handler(handleRun))
 	http.HandleFunc("/upload", handleUpload)
+	http.HandleFunc("/running", handleRunning)
 	http.Handle("/assets/", http.FileServer(http.Dir("./")))
 	http.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir(WorkingDir))))
 	http.Handle("/", http.FileServer(http.Dir("./templates")))
