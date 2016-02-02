@@ -59,15 +59,17 @@ COMMAND="docker run --rm -w /task-dir -v $WORKDIR_ROOT/$NAME:/task-dir -v $WORKD
 MASTER=`mesos-resolve $(cat /etc/mesos/zk)`
 
 mkdir -p tmp
-mkfifo tmp/$TASK_NAME
 function execute_job {
-mesos-execute --master=$MASTER --name=$TASK_NAME --command="$COMMAND" --resources="cpus:$CPUS_COUNT;mem:$MEMORY" | grep --line-buffered "^Framework registered with" | awk '{print $4; system("");}' > tmp/$TASK_NAME
+  mesos-execute --master=$MASTER --name=$TASK_NAME --command="$COMMAND" --resources="cpus:$CPUS_COUNT;mem:$MEMORY" > tmp/$TASK_NAME
 }
 
-execute_job > /dev/null 2>&1 &
+execute_job >/dev/null 2>&1 &
 EXECUTE_PID=`echo $!`
 
-FRAMEWORK_NAME=`cat tmp/$TASK_NAME`
+while ! grep "^Framework registered with" tmp/$TASK_NAME; do
+  sleep 1;
+done
+FRAMEWORK_NAME=`grep "^Framework registered with" tmp/$TASK_NAME | awk '{print $4}'`
 
 OUT_COUNT=0
 ERR_COUNT=0
@@ -84,7 +86,7 @@ while kill -0 $EXECUTE_PID 2> /dev/null; do
   echo -en "$OUT_TOTAL" | tail -c +$((OUT_COUNT + 1)) >> /$WORKDIR_ROOT/$NAME/stdfiles/${TASK_NAME}_stdout.txt
   OUT_COUNT=$(echo -en "$OUT_TOTAL" | wc -c)
 
-  sleep 1
+  sleep 0.5
 done
 
 sleep 5
