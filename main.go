@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math/rand"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -29,7 +30,9 @@ func generateDirs(taskId string) {
 
 func runCommand(ws *websocket.Conn, jobID, command, cpus, memory string) {
 	generateDirs(jobID)
+	rClusterJobId := rand.Intn(100000) + 100000
 	websocket.Message.Send(ws, "STDOUT: $ "+command+"\n")
+	websocket.Message.Send(ws, "STDOUT: Your r cluster id "+fmt.Sprintf("%v", rClusterJobId)+"\n")
 	websocket.Message.Send(ws, "STDERR: $ "+command+"\n")
 	cmd := exec.Command("./scripts/run-r-script.sh", "--name", jobID, "--command", command, "--cpus", cpus, "--memory", memory)
 	stdout, err := cmd.StdoutPipe()
@@ -52,7 +55,7 @@ func runCommand(ws *websocket.Conn, jobID, command, cpus, memory string) {
 		websocket.Message.Send(ws, "STDERR: "+err.Error()+"\nSTDOUT: "+newLine)
 		return
 	}
-	RegisterJob(jobID, command, cmd)
+	RegisterJob(jobID, command, rClusterJobId, cmd)
 
 	prefixerFuction := func(prefix string, r io.Reader, w *websocket.Conn, lock sync.Mutex) {
 		scanner := bufio.NewScanner(r)
@@ -90,7 +93,7 @@ func runCommand(ws *websocket.Conn, jobID, command, cpus, memory string) {
 
 	select {
 	case <-doneChan:
-		UnregisterJob(jobID, command)
+		UnregisterJob(jobID, command, rClusterJobId)
 	}
 
 	websocket.Message.Send(ws, "STDOUT: "+newLine)
@@ -174,13 +177,36 @@ func handleRunning(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	commands := GetAllJobs(taskId)
-	w.Write([]byte(strings.Join(commands, ",")))
+
+	jobs := []string{}
+	for _, v := range commands {
+
+		jobs = append(jobs, fmt.Sprintf("%v", v))
+	}
+	w.Write([]byte(strings.Join(jobs, "<br/>")))
+}
+
+func handleKill(w http.ResponseWriter, r *http.Request) {
+	rClusterId := r.URL.Query().Get("r-cluster-id")
+	if rClusterId == "" {
+		http.Error(w, "Missing r-cluster-id", http.StatusBadRequest)
+		return
+	}
+
+	id, _ := strconv.Atoi(rClusterId)
+	if KillJob(id) {
+		w.Write([]byte("KILLED!"))
+	} else {
+		w.Write([]byte("Id not found!"))
+	}
+
 }
 
 func main() {
 	http.Handle("/run", websocket.Handler(handleRun))
 	http.HandleFunc("/upload", handleUpload)
 	http.HandleFunc("/running", handleRunning)
+	http.HandleFunc("/kill", handleKill)
 	http.Handle("/assets/", http.FileServer(http.Dir("./")))
 	http.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir(WorkingDir))))
 	http.Handle("/", http.FileServer(http.Dir("./templates")))
