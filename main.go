@@ -171,7 +171,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleRunning(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-type", "text/plain")
+	w.Header().Add("Content-Type", "text/plain")
 	taskId := r.URL.Query().Get("task-id")
 	if taskId == "" {
 		http.Error(w, "Missing task-id", http.StatusBadRequest)
@@ -189,7 +189,7 @@ func handleRunning(w http.ResponseWriter, r *http.Request) {
 
 func handleKill(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Add("Content-type", "text/plain")
+	w.Header().Add("Content-Type", "text/plain")
 	rClusterId := r.URL.Query().Get("r-cluster-id")
 	if rClusterId == "" {
 		http.Error(w, "Missing r-cluster-id", http.StatusBadRequest)
