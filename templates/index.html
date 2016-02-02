@@ -119,8 +119,8 @@ function updateOutputLink() {
   $("#stdfiles-link").prop("href", "/static/"+ $("#task-id").val() +"/stdfiles");
 
 
-  $("#running-jobs-link").html(window.location.origin + "/"+ $("#task-id").val() +"/running");
-  $("#running-jobs-link").prop("href", "/"+ $("#task-id").val() +"/running");
+  $("#running-jobs-link").html(window.location.origin + "/running?task-id="+ $("#task-id").val());
+  $("#running-jobs-link").prop("href", "/running?task-id="+ $("#task-id").val());
 
   $("#editor-filename").html("/code/" + $("#task-id").val() + "_" + fileRandom + ".r");
 }
