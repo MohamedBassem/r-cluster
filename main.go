@@ -34,7 +34,7 @@ func runCommand(ws *websocket.Conn, jobID, command, cpus, memory string) {
 	websocket.Message.Send(ws, "STDOUT: $ "+command+"\n")
 	websocket.Message.Send(ws, "STDOUT: Your r cluster id "+fmt.Sprintf("%v", rClusterJobId)+"\n")
 	websocket.Message.Send(ws, "STDERR: $ "+command+"\n")
-	cmd := exec.Command("./scripts/run-r-script.sh", "--name", jobID, "--command", command, "--cpus", cpus, "--memory", memory)
+	cmd := exec.Command("setsid", "./scripts/run-r-script.sh", "--name", jobID, "--command", command, "--cpus", cpus, "--memory", memory)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Println(err.Error())
