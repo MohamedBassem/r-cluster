@@ -61,7 +61,7 @@ MASTER=`mesos-resolve $(cat /etc/mesos/zk)`
 mkdir -p tmp
 mkfifo tmp/$TASK_NAME
 function execute_job {
-  mesos-execute --master=$MASTER --name=$TASK_NAME --command="$COMMAND" --resources="cpus:$CPUS_COUNT;mem:$MEMORY" | grep --line-buffered "Framework registered with" | awk '{print $4}' > tmp/$TASK_NAME
+(mesos-execute --master=$MASTER --name=$TASK_NAME --command="$COMMAND" --resources="cpus:$CPUS_COUNT;mem:$MEMORY") 2>&1 | grep --line-buffered "^Framework registered with" | awk '{print $4}' > tmp/$TASK_NAME
 }
 
 execute_job > /dev/null 2>&1 &
