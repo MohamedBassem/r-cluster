@@ -59,6 +59,7 @@ COMMAND="docker run --rm -w /task-dir -v $WORKDIR_ROOT/$NAME:/task-dir -v $WORKD
 MASTER=`mesos-resolve $(cat /etc/mesos/zk)`
 
 mkdir -p tmp
+touch tmp/$TASK_NAME
 function execute_job {
   mesos-execute --master=$MASTER --name=$TASK_NAME --command="$COMMAND" --resources="cpus:$CPUS_COUNT;mem:$MEMORY" > tmp/$TASK_NAME
 }
