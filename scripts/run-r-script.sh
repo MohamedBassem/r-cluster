@@ -84,7 +84,7 @@ while kill -0 $EXECUTE_PID 2> /dev/null; do
   echo -en "$OUT_TOTAL" | tail -c +$((OUT_COUNT + 1)) >> /$WORKDIR_ROOT/$NAME/stdfiles/${TASK_NAME}_stdout.txt
   OUT_COUNT=$(echo -en "$OUT_TOTAL" | wc -c)
 
-  sleep 0.1
+  sleep 1
 done
 
 sleep 5
